@@ -22,6 +22,14 @@ import software.amazon.awssdk.annotations.SdkPublicApi;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
+/**
+ * Defines parameters used to when querying a DynamoDb table.
+ * <p/>
+ * A valid request object must contain a {@link QueryConditional} condition specifying how DynamoDb
+ * should match items in the table.
+ * <p/>
+ * All other parameters are optional.
+ */
 @SdkPublicApi
 public final class QueryEnhancedRequest {
 
@@ -41,10 +49,17 @@ public final class QueryEnhancedRequest {
         this.filterExpression = builder.filterExpression;
     }
 
+    /**
+     * All requests must be constructed using a Builder.
+     * @return a builder of this type
+     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * @return a builder with all existing values set
+     */
     public Builder toBuilder() {
         return builder().queryConditional(queryConditional)
                         .exclusiveStartKey(exclusiveStartKey)
@@ -54,26 +69,45 @@ public final class QueryEnhancedRequest {
                         .filterExpression(filterExpression);
     }
 
+    /**
+     * @return The conditions of the query
+     */
     public QueryConditional queryConditional() {
         return queryConditional;
     }
 
+    /**
+     * @return
+     */
     public Map<String, AttributeValue> exclusiveStartKey() {
         return exclusiveStartKey;
     }
 
+    /**
+     * @return
+     */
     public Boolean scanIndexForward() {
         return scanIndexForward;
     }
 
+    /**
+     * @return
+     */
     public Integer limit() {
         return limit;
     }
 
+    /**
+     * @return whether or not this request will use consistent read
+     */
     public Boolean consistentRead() {
         return consistentRead;
     }
 
+    /**
+     *
+     * @return
+     */
     public Expression filterExpression() {
         return filterExpression;
     }
@@ -121,6 +155,9 @@ public final class QueryEnhancedRequest {
         return result;
     }
 
+    /**
+     * Use this builder to create a request with the desired parameters.
+     */
     public static final class Builder {
         private QueryConditional queryConditional;
         private Map<String, AttributeValue> exclusiveStartKey;
@@ -132,31 +169,78 @@ public final class QueryEnhancedRequest {
         private Builder() {
         }
 
+        /**
+         * Determines the matching conditions for this query request. See {@link QueryConditional} for examples
+         * and constraints.
+         *
+         * @param queryConditional the query conditions
+         * @return a builder of this type
+         */
         public Builder queryConditional(QueryConditional queryConditional) {
             this.queryConditional = queryConditional;
             return this;
         }
 
+        /**
+         * Results are sorted by sort key in ascending order if {@link #scanIndexForward} is true. If its false, the
+         * order is descending. The default value is true.
+         *
+         * @param scanIndexForward the sort order
+         * @return a builder of this type
+         */
         public Builder scanIndexForward(Boolean scanIndexForward) {
             this.scanIndexForward = scanIndexForward;
             return this;
         }
 
+        /**
+         * The primary key of the first item that this operation will evaluate. Use the value that was returned for
+         * {@link Page#lastEvaluatedKey()} in the previous operation.
+         *
+         * @param exclusiveStartKey the primary key value to start evaluate
+         * @return a builder of this type
+         */
         public Builder exclusiveStartKey(Map<String, AttributeValue> exclusiveStartKey) {
             this.exclusiveStartKey = exclusiveStartKey != null ? new HashMap<>(exclusiveStartKey) : null;
             return this;
         }
 
+        /**
+         * Sets a limit on how many items to evaluate in the query. If not set, the operation uses
+         * the maximum values allowed.
+         * <p/>
+         * <b>Note:</b>The limit does not refer to the number of items to return, but how many items
+         * the database should evaluate while executing the query. Use limit together with {@link Page#lastEvaluatedKey()}
+         * and {@link #exclusiveStartKey} in subsequent query calls to evaluate <em>limit</em> items per call.
+         *
+         * @param limit the maximum number of items to evalute
+         * @return a builder of this type
+         */
         public Builder limit(Integer limit) {
             this.limit = limit;
             return this;
         }
 
+        /**
+         Determines the read consistency model: If set to true, the operation uses strongly consistent reads; otherwise,
+         the operation uses eventually consistent reads.
+         *
+         * @param consistentRead sets consistency model of the operation to use strong consistency
+         * @return a builder of this type
+         */
         public Builder consistentRead(Boolean consistentRead) {
             this.consistentRead = consistentRead;
             return this;
         }
 
+        /**
+         * Refines the query results by applying the filter expression on the results returned
+         * from the query and discards items that do not match. See {@link Expression} for examples
+         * and constraints.
+         *
+         * @param filterExpression an expression that filters results of evaluating the query
+         * @return a builder of this type
+         */
         public Builder filterExpression(Expression filterExpression) {
             this.filterExpression = filterExpression;
             return this;

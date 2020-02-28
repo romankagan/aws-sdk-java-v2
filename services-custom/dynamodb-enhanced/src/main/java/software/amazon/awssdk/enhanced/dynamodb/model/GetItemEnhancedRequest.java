@@ -20,6 +20,11 @@ import java.util.function.Consumer;
 import software.amazon.awssdk.annotations.SdkPublicApi;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+/**
+ * Defines parameters used to retrieve an item from a DynamoDb table.
+ * <p/>
+ * A valid request object must contain a {@link Key}.
+ */
 @SdkPublicApi
 public final class GetItemEnhancedRequest {
 
@@ -31,18 +36,31 @@ public final class GetItemEnhancedRequest {
         this.consistentRead = builder.consistentRead;
     }
 
+    /**
+     * All requests must be constructed using a Builder.
+     * @return a builder of this type
+     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * @return a builder with all existing values set
+     */
     public Builder toBuilder() {
         return builder().key(key).consistentRead(consistentRead);
     }
 
+    /**
+     * @return whether or not this request will use consistent read
+     */
     public Boolean consistentRead() {
         return this.consistentRead;
     }
 
+    /**
+     * @return the key for this request
+     */
     public Key key() {
         return this.key;
     }
@@ -71,6 +89,11 @@ public final class GetItemEnhancedRequest {
         return result;
     }
 
+    /**
+     * Use this builder to create a request with the desired parameters.
+     * <p/>
+     * <b>Note</b>: A valid request builder must define a {@link Key}.
+     */
     public static final class Builder {
         private Key key;
         private Boolean consistentRead;
@@ -78,16 +101,36 @@ public final class GetItemEnhancedRequest {
         private Builder() {
         }
 
+        /**
+         Determines the read consistency model: If set to true, the operation uses strongly consistent reads; otherwise,
+         the operation uses eventually consistent reads.
+         *
+         * @param consistentRead sets consistency model of the operation to use strong consistency
+         * @return a builder of this type
+         */
         public Builder consistentRead(Boolean consistentRead) {
             this.consistentRead = consistentRead;
             return this;
         }
 
+        /**
+         * Sets the {@link Key} to use in the request.
+         *
+         * @param key the primary key to use in the request.
+         * @return a builder of this type
+         */
         public Builder key(Key key) {
             this.key = key;
             return this;
         }
 
+        /**
+         * Sets the {@link Key} on the builder by accepting a consumer of {@link Key.Builder}. Calls {@link #key(Key)} with
+         * the built request object.
+         *
+         * @param keyConsumer a {@link Consumer} of {@link Key}
+         * @return a builder of this type
+         */
         public Builder key(Consumer<Key.Builder> keyConsumer) {
             Key.Builder builder = Key.builder();
             keyConsumer.accept(builder);

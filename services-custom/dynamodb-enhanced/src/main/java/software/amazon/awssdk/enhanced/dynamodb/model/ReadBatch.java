@@ -27,6 +27,14 @@ import software.amazon.awssdk.enhanced.dynamodb.TableMetadata;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.KeysAndAttributes;
 
+/**
+ * Defines a collection of primary keys for items in a table, stored as {@link KeysAndAttributes}.
+ * <p/>
+ *
+ * <b>Note:</b>The builder for the class is parameterized, however the class itself is not. The builder takes a parameterized
+ * {@link MappedTableResource} in order for the constructor to transform {@link GetItemEnhancedRequest} objects into the keys and
+ * attributes, but the object itself only stores a reference to the table name and does not need to remember the type.
+ */
 @SdkPublicApi
 public final class ReadBatch {
     private final String tableName;
@@ -37,14 +45,26 @@ public final class ReadBatch {
         this.keysAndAttributes = generateKeysAndAttributes(builder.requests, builder.mappedTableResource);
     }
 
+    /**
+     * All objects must be constructed using a Builder.
+     * @param itemClass to determine the parameterized type T of the builder
+     * @param <T> The type of the modelled object, corresponding to itemClass
+     * @return a parameterized builder of this type
+     */
     public static <T> Builder<T> builder(Class<? extends T> itemClass) {
         return new BuilderImpl<>();
     }
 
+    /**
+     * @return the table name
+     */
     public String tableName() {
         return tableName;
     }
 
+    /**
+     * @return a collection of keys and attributes, see {@link KeysAndAttributes}
+     */
     public KeysAndAttributes keysAndAttributes() {
         return keysAndAttributes;
     }
@@ -77,13 +97,42 @@ public final class ReadBatch {
         return result;
     }
 
+    /**
+     * The builder takes a parameterized {@link MappedTableResource} and individual {@link GetItemEnhancedRequest}.
+     * <p/>
+     * <b>Note</b>: Must at a minimum define a {@link MappedTableResource} and add at least one {@link GetItemEnhancedRequest}.
+     *
+     * @param <T>
+     */
     public interface Builder<T> {
+        /**
+         *
+         * @param mappedTableResource
+         * @return a parameterized Builder of this type
+         */
         Builder<T> mappedTableResource(MappedTableResource<T> mappedTableResource);
 
+        /**
+         * Adds a {@link GetItemEnhancedRequest} to the builder.
+         *
+         * @param request A {@link GetItemEnhancedRequest}
+         * @return a parameterized Builder of this type
+         */
         Builder<T> addGetItem(GetItemEnhancedRequest request);
 
+        /**
+         * Adds a {@link GetItemEnhancedRequest} to the builder by accepting a consumer of
+         * {@link GetItemEnhancedRequest.Builder}. Calls {@link #addGetItem(GetItemEnhancedRequest)} with the built request
+         * object.
+         *
+         * @param requestConsumer a {@link Consumer} of {@link GetItemEnhancedRequest}
+         * @return a parameterized Builder of this type
+         */
         Builder<T> addGetItem(Consumer<GetItemEnhancedRequest.Builder> requestConsumer);
 
+        /**
+         * @return an object of this type initialized with the values of the Builder
+         */
         ReadBatch build();
     }
 

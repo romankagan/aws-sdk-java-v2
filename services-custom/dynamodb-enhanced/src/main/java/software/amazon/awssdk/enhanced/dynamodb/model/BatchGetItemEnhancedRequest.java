@@ -23,6 +23,9 @@ import java.util.List;
 
 import software.amazon.awssdk.annotations.SdkPublicApi;
 
+/**
+ * Defines an immutable list of {@link ReadBatch}.
+ */
 @SdkPublicApi
 public final class BatchGetItemEnhancedRequest {
 
@@ -32,14 +35,24 @@ public final class BatchGetItemEnhancedRequest {
         this.readBatches = getListIfExist(builder.readBatches);
     }
 
+    /**
+     * All requests must be constructed using a Builder.
+     * @return a builder of this type
+     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * @return a builder with all existing values set
+     */
     public Builder toBuilder() {
         return new Builder().readBatches(readBatches);
     }
 
+    /**
+     * @return a collection of {@link ReadBatch}
+     */
     public Collection<ReadBatch> readBatches() {
         return readBatches;
     }
@@ -67,22 +80,40 @@ public final class BatchGetItemEnhancedRequest {
         return readBatches != null ? Collections.unmodifiableList(readBatches) : null;
     }
 
+    /**
+     * Use this builder to create a request with the
+     */
     public static final class Builder {
         private List<ReadBatch> readBatches;
 
         private Builder() {
         }
 
+        /**
+         *
+         * @param readBatches
+         * @return
+         */
         public Builder readBatches(Collection<ReadBatch> readBatches) {
             this.readBatches = readBatches != null ? new ArrayList<>(readBatches) : null;
             return this;
         }
 
+        /**
+         *
+         * @param readBatches
+         * @return
+         */
         public Builder readBatches(ReadBatch... readBatches) {
             this.readBatches = Arrays.asList(readBatches);
             return this;
         }
 
+        /**
+         *
+         * @param readBatch
+         * @return
+         */
         public Builder addReadBatch(ReadBatch readBatch) {
             if (readBatches == null) {
                 readBatches = new ArrayList<>();

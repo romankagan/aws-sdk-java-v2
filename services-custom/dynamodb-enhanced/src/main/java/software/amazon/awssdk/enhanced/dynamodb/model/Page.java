@@ -23,6 +23,8 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 /**
  * An immutable object that holds a page of queried or scanned results from DynamoDb.
+ * <p/>
+ * Contains a reference to the last evaluated key for the current page; see {@link #lastEvaluatedKey()} for more information.
  * @param <T> The modelled type of the object that has been read.
  */
 @SdkPublicApi

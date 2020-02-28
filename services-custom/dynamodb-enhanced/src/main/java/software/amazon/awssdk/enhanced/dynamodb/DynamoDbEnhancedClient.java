@@ -28,6 +28,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteResult;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactGetItemsEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactGetResultPage;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 /**
@@ -42,10 +43,46 @@ public interface DynamoDbEnhancedClient {
      * @param tableName The name of the physical table persisted by DynamoDb.
      * @param tableSchema A {@link TableSchema} that maps the table to a modelled object.
      * @return A {@link DynamoDbTable} object that can be used to execute table operations against.
-     * @param <T> THe modelled object type being mapped to this table.
+     * @param <T> The modelled object type being mapped to this table.
      */
     <T> DynamoDbTable<T> table(String tableName, TableSchema<T> tableSchema);
 
+    /**
+     * Retrieves items from one or more tables by their primary keys, see {@link Key}.
+     * <p/>
+     * The additional configuration parameters that the enhanced client supports are defined
+     * in the {@link BatchGetItemEnhancedRequest}.
+     * <p/>
+     * <b>Partial results</b>. A single call has restraints on how much
+     * data can be retrieved. If those limits are exceeded, the call will yield a partial result. This may also be the case if
+     * provisional throughput is exceeded or there is an internal DynamoDb processing failure. The enhanced client does not
+     * currently support retrieving information on partial results.
+     * <p/>
+     * This operation calls the low-level DynamoDB API BatchGetItem operation. Consult the BatchGetItem documentation for
+     * further details and constraints as well as current limits of data retrieval.
+     * <p/>
+     * Example:
+     * <pre>
+     * {@code
+     * batchResults = enhancedClient.batchGetItem(
+     *            BatchGetItemEnhancedRequest.builder()
+     *                                       .readBatches(ReadBatch.builder(FirstItem.class)
+     *                                                             .mappedTableResource(firstItemTable)
+     *                                                             .addGetItem(GetItemEnhancedRequest.builder().key(key1).build())
+     *                                                             .addGetItem(GetItemEnhancedRequest.builder().key(key2).build())
+     *                                                             .build(),
+     *                                                    ReadBatch.builder(SecondItem.class)
+     *                                                             .mappedTableResource(secondItemTable)
+     *                                                             .addGetItem(GetItemEnhancedRequest.builder().key(key3).build())
+     *                                                             .build())
+     *                                       .build());
+     * }
+     * </pre>
+     *
+     * @param request A {@link BatchGetItemEnhancedRequest} containing keys grouped by tables.
+     * @return an iterator of type {@link SdkIterable} with paginated results of type {@link BatchGetResultPage}.
+     * @throws UnsupportedOperationException if there exists no overriding implementation of this method
+     */
     default SdkIterable<BatchGetResultPage> batchGetItem(BatchGetItemEnhancedRequest request) {
         throw new UnsupportedOperationException();
     }
@@ -54,6 +91,49 @@ public interface DynamoDbEnhancedClient {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Puts or deletes multiple items in one or more tables.
+     * <p/>
+     * The additional configuration parameters that the enhanced client supports are defined
+     * in the {@link BatchWriteItemEnhancedRequest}.
+     * <p/>
+     * <b>Note: </b> BatchWriteItem cannot update items. Instead, use the individual updateItem operation
+     * {@link DynamoDbTable#updateItem(UpdateItemEnhancedRequest)}.
+     * <p/>
+     * <b>Partial updates</b><br>Each delete or put call is atomic, but the operation as a whole is not.
+     * If individual operations fail due to exceeded provisional throughput internal DynamoDb processing failures,
+     * the failed requests can be retrieved through the result, see {@link BatchWriteResult}.
+     * <p/>
+     * There are some conditions that cause the whole batch operation to fail. These include non-existing tables, erroneously
+     * defined primary key attributes, attempting to put and delete the same item as well as referring more than once to the same
+     * hash and range (sort) key.
+     * <p/>
+     * This operation calls the low-level DynamoDB API BatchWriteItem operation. Consult the BatchWriteItem documentation for
+     * further details and constraints, current limits of data to write and/or delete, how to handle partial updates and retries
+     * and under which conditions the operation will fail.
+     * <p/>
+     * Example:
+     * <pre>
+     * {@code
+     * batchResult = enhancedClient.batchWriteItem(
+     *            BatchWriteItemEnhancedRequest.builder()
+     *                                         .writeBatches(WriteBatch.builder(FirstItem.class)
+     *                                                                 .mappedTableResource(firstItemTable)
+     *                                                                 .addPutItem(PutItemEnhancedRequest.builder().item(item1).build())
+     *                                                                 .addDeleteItem(DeleteItemEnhancedRequest.builder().key(key2).build())
+     *                                                                 .build(),
+     *                                                       WriteBatch.builder(SecondItem.class)
+     *                                                                 .mappedTableResource(secondItemTable)
+     *                                                                 .addPutItem(PutItemEnhancedRequest.builder().item(item3).build())
+     *                                                                 .build())
+     *                                         .build());
+     * }
+     * </pre>
+     *
+     * @param request A {@link BatchWriteItemEnhancedRequest} containing keys grouped by tables.
+     * @return a {@link BatchWriteResult} containing any unprocessed requests.
+     * @throws UnsupportedOperationException if there exists no overriding implementation of this method
+     */
     default BatchWriteResult batchWriteItem(BatchWriteItemEnhancedRequest request) {
         throw new UnsupportedOperationException();
     }
